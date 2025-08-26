@@ -16,7 +16,8 @@ import AppLayout from "./ui/AppLayout";
 const queryClient = new QueryClient({
 	defaultOptions: {
 		queries: {
-			staleTime: 60 * 1000,
+			// this is the time that it will take for the data to go stale, then React Query will automaticly refetch the data when we leave and re-enter the tab
+			staleTime: 0,
 		},
 	},
 });
