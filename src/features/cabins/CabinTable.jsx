@@ -36,7 +36,7 @@ function CabinTable() {
 		error,
 	} = useQuery({
 		// this is an unique key that identifies the query
-		queryKey: ["cabin"],
+		queryKey: ["cabins"],
 		// this function will be doing the fetching of the data and need to return a promise
 		queryFn: getCabins,
 	});

@@ -1,5 +1,7 @@
 import styled from "styled-components";
 import { formatCurrency } from "../../utils/helpers";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { deleteCabin } from "../../services/apiCabins";
 
 const TableRow = styled.div`
 	display: grid;
@@ -41,7 +43,22 @@ const Discount = styled.div`
 `;
 
 function CabinRow({ cabin }) {
-	const { name, maxCapacity, regularPrice, discount, image } = cabin;
+	const { id: cabinId, name, maxCapacity, regularPrice, discount, image } = cabin;
+
+	// this allows us to get the query client from the app.jsx file to make the data invalid
+	const queryClient = useQueryClient();
+
+	// the mutate the data from the API
+	const { isLoading: isDeleting, mutate } = useMutation({
+		// this is the function that is called
+		mutationFn: deleteCabin,
+		// to refetch the data, we need to revalidate the data
+		onSuccess: () => {
+			alert("Cabin successfully deleted");
+			queryClient.invalidateQueries({ queryKey: ["cabins"] });
+		},
+		onError: err => alert(err.message),
+	});
 
 	return (
 		<TableRow role="row">
@@ -50,7 +67,9 @@ function CabinRow({ cabin }) {
 			<div>fit up to {maxCapacity} guests</div>
 			<Price>{formatCurrency(regularPrice)}</Price>
 			<Discount>{formatCurrency(discount)}</Discount>
-			<button>Delete</button>
+			<button onClick={() => mutate(cabinId)} disabled={isDeleting}>
+				Delete
+			</button>
 		</TableRow>
 	);
 }
