@@ -6,6 +6,9 @@ import Form from "../../ui/Form";
 import Button from "../../ui/Button";
 import FileInput from "../../ui/FileInput";
 import Textarea from "../../ui/Textarea";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { createCabin } from "../../services/apiCabins";
+import toast from "react-hot-toast";
 
 const FormRow = styled.div`
 	display: grid;
@@ -49,22 +52,38 @@ const Error = styled.span`
  */
 function CreateCabinForm() {
 	// add the react hoot form and obtain the functions
-	const { register, handleSubmit } = useForm();
+	const { register, handleSubmit, reset } = useForm();
 
-  /**
-   * 
-   * @param {this is the data received from the form} data 
-   */
-  function onSubmit(data) {
+	// get the query client
+	const queryClient = useQueryClient();
 
-  }
-  
+	// mutates the data
+	const { mutate, isLoading: isCreating } = useMutation({
+		mutationFn: createCabin,
+		onSuccess: () => {
+			toast.success("New cabin successfully created");
+			// invalidate the data to refresh
+			queryClient.invalidateQueries({ queryKey: ["cabins"] });
+			// clear the form
+			reset();
+		},
+		onError: err => toast.error(err.message),
+	});
+
+	/**
+	 *
+	 * @param {this is the data received from the form} data
+	 */
+	function onSubmit(data) {
+		mutate(data);
+	}
+
 	return (
-    // in the handleSubmit is the function we want to be called when the form is submitted
+		// in the handleSubmit is the function we want to be called when the form is submitted
 		<Form onSubmit={handleSubmit(onSubmit)}>
 			<FormRow>
 				<Label htmlFor="name">Cabin name</Label>
-        {/* by spreading the register allows us to use the library to register each of the input box */}
+				{/* by spreading the register allows us to use the library to register each of the input box */}
 				<Input type="text" id="name" {...register("name")} />
 			</FormRow>
 
@@ -105,11 +124,11 @@ function CreateCabinForm() {
 
 			<FormRow>
 				{/* type is an HTML attribute! */}
-        {/* is reset from HTML we can easier make a button that clears the form */}
+				{/* is reset from HTML we can easier make a button that clears the form */}
 				<Button variation="secondary" type="reset">
 					Cancel
 				</Button>
-				<Button>Add cabin</Button>
+				<Button disabled={isCreating}>Add cabin</Button>
 			</FormRow>
 		</Form>
 	);
