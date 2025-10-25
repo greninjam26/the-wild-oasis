@@ -1,4 +1,4 @@
-import supabase from "./supabase";
+import supabase, { supabaseUrl } from "./supabase";
 
 export async function getCabins() {
 	const { data, error } = await supabase.from("cabins").select("*");
@@ -12,17 +12,41 @@ export async function getCabins() {
 }
 
 /**
- * 
- * @param {the data of the new cabin that needs to be added to the API} newCabin 
+ *
+ * @param {the data of the new cabin that needs to be added to the API} newCabin
  * @returns the data from the new table
  */
 export async function createCabin(newCabin) {
+	// image format: https://semguujqacuqjryeqzgs.supabase.co/storage/v1/object/public/cabin-images/cabin-001.jpg
+	// if there are / then supabase will make folders so, we replace them all
+	const imageName = `${Math.random()}-${newCabin.image.name}`.replace("/", "");
+	const imagePath = `${supabaseUrl}/storage/v1/object/public/cabin-images/${imageName}`;
+
+	// 1. create the cabin
+
 	// this only works because the the data, newCabin, are the exact format of the table in supabase
-	const { data, error } = await supabase.from("cabins").insert([newCabin]).select();
+	const { data, error } = await supabase
+		.from("cabins")
+		.insert([{ ...newCabin, image: imagePath }])
+		.select();
 
 	if (error) {
 		console.error(error);
 		throw new Error("Cabins could not be created ");
+	}
+
+	// 2. if it works then upload the image
+	const { error: storageError } = await supabase.storage
+		.from("cabin-images")
+		.upload(imageName, newCabin.image);
+
+	// 3. delete the cabin if the uploading returned an error
+	if (storageError) {
+		await supabase.from("cabins").delete().eq("id", data.id);
+		console.error(storageError);
+		throw new Error(
+			"Cabins image could not be uploaded and the cabin can't be created"
+		);
 	}
 
 	return data;

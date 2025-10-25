@@ -40,7 +40,9 @@ function CreateCabinForm() {
 	 * @param {this is the data received from the form} data
 	 */
 	function onSubmit(data) {
-		mutate(data);
+		// this way we only take the image and nothing else(upload a file have a lot of other imformations)
+		// data.image is a file list so .at() won't work, it is not a real array
+		mutate({ ...data, image: data.image[0] });
 	}
 
 	/**
@@ -141,7 +143,15 @@ function CreateCabinForm() {
 			</FormRow>
 
 			<FormRow label="Cabin photo">
-				<FileInput id="image" accept="image/*" disabled={isCreating} />
+				<FileInput
+					id="image"
+					accept="image/*"
+					disabled={isCreating}
+					{...register("image", {
+						// this set the input box to must be filled in to submit
+						required: "This field is required",
+					})}
+				/>
 			</FormRow>
 
 			<FormRow>
