@@ -13,18 +13,11 @@ import { createCabin } from "../../services/apiCabins";
 
 /**
  *
- * @param {the cabin that we will be editing} cabinToEdit
- * @returns the form to edit or create cabin
+ * @returns this is the create cabin form
  */
-function CreateCabinForm({ cabinToEdit = {} }) {
-	const { id: editId, ...editValues } = cabinToEdit;
-	const isEditSession = Boolean(editId);
-
-	// add the react hook form and obtain the functions
-	// with defaultValues to set the values in the input box for editing purposes
-	const { register, handleSubmit, reset, getValues, formState } = useForm({
-		defaultValues: isEditSession ? editValues : {},
-	});
+function CreateCabinForm() {
+	// add the react hoot form and obtain the functions
+	const { register, handleSubmit, reset, getValues, formState } = useForm();
 	const { errors } = formState;
 
 	// get the query client
@@ -156,8 +149,8 @@ function CreateCabinForm({ cabinToEdit = {} }) {
 					accept="image/*"
 					disabled={isCreating}
 					{...register("image", {
-						// this set the input box to must be filled in to submit if we are not editing the cabin
-						required: isEditSession ? false : "This field is required",
+						// this set the input box to must be filled in to submit
+						required: "This field is required",
 					})}
 				/>
 			</FormRow>
@@ -168,8 +161,7 @@ function CreateCabinForm({ cabinToEdit = {} }) {
 				<Button variation="secondary" type="reset">
 					Cancel
 				</Button>
-				{/* use conditions to change the name of the button */}
-				<Button disabled={isCreating}>{isEditSession ? "Edit" : "Create new"} cabin</Button>
+				<Button disabled={isCreating}>Add cabin</Button>
 			</FormRow>
 		</Form>
 	);
