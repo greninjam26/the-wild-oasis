@@ -20,7 +20,7 @@ export async function getCabins() {
 export async function createEditCabin(newCabin, id) {
 	console.log(newCabin, id);
 	// checks wether the image path of the cabin start with supabase
-	const hasImagePath = newCabin.image?.startsWith?.(supabase);
+	const hasImagePath = newCabin.image?.startsWith?.(supabaseUrl);
 
 	// image format: https://semguujqacuqjryeqzgs.supabase.co/storage/v1/object/public/cabin-images/cabin-001.jpg
 	// if there are / then supabase will make folders so, we replace them all
