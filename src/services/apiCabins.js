@@ -14,21 +14,40 @@ export async function getCabins() {
 /**
  *
  * @param {the data of the new cabin that needs to be added to the API} newCabin
+ * @param {the id of the cabin that is being edited} id
  * @returns the data from the new table
  */
-export async function createCabin(newCabin) {
+export async function createEditCabin(newCabin, id) {
+	console.log(newCabin, id);
+	// checks wether the image path of the cabin start with supabase
+	const hasImagePath = newCabin.image?.startsWith?.(supabase);
+
 	// image format: https://semguujqacuqjryeqzgs.supabase.co/storage/v1/object/public/cabin-images/cabin-001.jpg
 	// if there are / then supabase will make folders so, we replace them all
 	const imageName = `${Math.random()}-${newCabin.image.name}`.replace("/", "");
-	const imagePath = `${supabaseUrl}/storage/v1/object/public/cabin-images/${imageName}`;
+	// wether the image path of the cabin start with supabase or not determines wether we need to edit the images or not
+	const imagePath = hasImagePath
+		? newCabin.image
+		: `${supabaseUrl}/storage/v1/object/public/cabin-images/${imageName}`;
 
-	// 1. create the cabin
+	// 1. create or edit the cabin
 
 	// this only works because the the data, newCabin, are the exact format of the table in supabase
-	const { data, error } = await supabase
-		.from("cabins")
-		.insert([{ ...newCabin, image: imagePath }])
-		.select();
+	// with query we can be able to change the action base on the id
+	let query = supabase.from("cabins");
+	// check if there is an id for the cabin
+	if (!id) {
+		// if there is not create the cabin
+		query = query.insert([{ ...newCabin, image: imagePath }]);
+	} else {
+		// if there is an id, update the cabin
+		query = query.update({ ...newCabin, image: imagePath }).eq("id", id);
+	}
+
+	const { data, error } = await query
+		// with these two we can be able to get the updated data of the cabins
+		.select()
+		.single();
 
 	if (error) {
 		console.error(error);
