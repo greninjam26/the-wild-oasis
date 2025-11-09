@@ -1,5 +1,3 @@
-import { useMutation, useQueryClient } from "@tanstack/react-query";
-import toast from "react-hot-toast";
 import { useForm } from "react-hook-form";
 
 import Input from "../../ui/Input";
@@ -9,7 +7,8 @@ import FileInput from "../../ui/FileInput";
 import Textarea from "../../ui/Textarea";
 import FormRow from "../../ui/FormRow";
 
-import { createEditCabin } from "../../services/apiCabins";
+import { useCreateCabin } from "./useCreateCabin";
+import { useEditCabin } from "./useEditCabin";
 
 /**
  *
@@ -17,6 +16,12 @@ import { createEditCabin } from "../../services/apiCabins";
  * @returns the form to edit or create cabin
  */
 function CreateCabinForm({ cabinToEdit = {} }) {
+	// create new cabin
+	const { isCreating, createCabin } = useCreateCabin();
+	// edit an exist cabin
+	const { isEditing, editCabin } = useEditCabin();
+	const isWorking = isCreating || isEditing;
+
 	const { id: editId, ...editValues } = cabinToEdit;
 	const isEditSession = Boolean(editId);
 
@@ -27,38 +32,6 @@ function CreateCabinForm({ cabinToEdit = {} }) {
 	});
 	const { errors } = formState;
 
-	// get the query client
-	const queryClient = useQueryClient();
-
-	// mutates the data
-	// create new cabin
-	const { mutate: createCabin, isLoading: isCreating } = useMutation({
-		mutationFn: createEditCabin,
-		onSuccess: () => {
-			toast.success("New cabin successfully created");
-			// invalidate the data to refresh
-			queryClient.invalidateQueries({ queryKey: ["cabins"] });
-			// clear the form
-			reset();
-		},
-		onError: err => toast.error(err.message),
-	});
-	// edit an exist cabin
-	const { mutate: editCabin, isLoading: isEditing } = useMutation({
-		// we can only pass one argument if we just put createEditCabin
-		mutationFn: ({ newCabinData, id }) => createEditCabin(newCabinData, id),
-		onSuccess: () => {
-			toast.success("Cabin successfully edited");
-			// invalidate the data to refresh
-			queryClient.invalidateQueries({ queryKey: ["cabins"] });
-			// clear the form
-			reset();
-		},
-		onError: err => toast.error(err.message),
-	});
-
-	const isWorking = isCreating || isEditing;
-
 	/**
 	 *
 	 * @param {this is the data received from the form} data
@@ -67,10 +40,15 @@ function CreateCabinForm({ cabinToEdit = {} }) {
 		// check is the image is a link or file list
 		const image = typeof data.image === "string" ? data.image : data.image[0];
 
-		if (isEditSession) editCabin({ newCabinData: { ...data, image }, id: editId });
+		if (isEditSession)
+			editCabin(
+				{ newCabinData: { ...data, image }, id: editId },
+				{ onSuccess: () => reset() }
+			);
 		// this way we only take the image and nothing else(upload a file have a lot of other imformations)
 		// data.image is a file list so .at() won't work, it is not a real array
-		else createCabin({ ...data, image: image });
+		// for the mutation, we don't have to put the functions in the mutation function, we can also have it here, where the mutation is called
+		else createCabin({ ...data, image: image }, { onSuccess: () => reset() });
 	}
 
 	/**

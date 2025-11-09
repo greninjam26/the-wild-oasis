@@ -18,7 +18,6 @@ export async function getCabins() {
  * @returns the data from the new table
  */
 export async function createEditCabin(newCabin, id) {
-	console.log(newCabin, id);
 	// checks wether the image path of the cabin start with supabase
 	const hasImagePath = newCabin.image?.startsWith?.(supabaseUrl);
 
