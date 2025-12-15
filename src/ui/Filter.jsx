@@ -36,25 +36,31 @@ const FilterButton = styled.button`
 `;
 
 // we are using the information in the URL so the filter component and be anywhere don't have to be the child of the table to obtain the information
-function Filter() {
-  // from react router useSearchParams allows us to modify the URL
+function Filter({ filterField, options }) {
+	// from react router useSearchParams allows us to modify the URL
 	const [searchParams, setSearchParams] = useSearchParams();
+  // get the current searchParams value that matches to filterField, if it is null then get the default first value of option
+	const currentFilter = searchParams.get(filterField) || options.at(0).value;
 
-  // this function will update the URL base on the button we click
+	// this function will update the URL base on the button we click
 	function handleClick(value) {
-		searchParams.set("discount", value);
+		searchParams.set(filterField, value);
 		setSearchParams(searchParams);
 	}
 
 	return (
 		<StyledFilter>
-			<FilterButton onClick={() => handleClick("all")}>All</FilterButton>
-			<FilterButton onClick={() => handleClick("no-discount")}>
-				No Discount
-			</FilterButton>
-			<FilterButton onClick={() => handleClick("with-discount")}>
-				With Discount
-			</FilterButton>
+      {/* loop through all the options for the filters and create buttons for them */}
+			{options.map(option => (
+				<FilterButton
+					key={option.value}
+					onClick={() => handleClick(option.value)}
+          // set the button to active if it is the current filter
+					active={option.value === currentFilter}
+				>
+					{option.label}
+				</FilterButton>
+			))}
 		</StyledFilter>
 	);
 }
