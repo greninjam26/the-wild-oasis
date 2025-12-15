@@ -15,7 +15,7 @@ import { useEditCabin } from "./useEditCabin";
  * @param {the cabin that we will be editing} cabinToEdit
  * @returns the form to edit or create cabin
  */
-function CreateCabinForm({ cabinToEdit = {} }) {
+function CreateCabinForm({ cabinToEdit = {}, onCloseModal }) {
 	// create new cabin
 	const { isCreating, createCabin } = useCreateCabin();
 	// edit an exist cabin
@@ -48,7 +48,16 @@ function CreateCabinForm({ cabinToEdit = {} }) {
 		// this way we only take the image and nothing else(upload a file have a lot of other imformations)
 		// data.image is a file list so .at() won't work, it is not a real array
 		// for the mutation, we don't have to put the functions in the mutation function, we can also have it here, where the mutation is called
-		else createCabin({ ...data, image: image }, { onSuccess: () => reset() });
+		else
+			createCabin(
+				{ ...data, image: image },
+				{
+					onSuccess: () => {
+						reset();
+						onCloseModal?.();
+					},
+				}
+			);
 	}
 
 	/**
@@ -61,7 +70,11 @@ function CreateCabinForm({ cabinToEdit = {} }) {
 
 	return (
 		// in the handleSubmit, the first function(onSubmit) is what we want to be called when the form is submitted, the second function(obError) will be called when the form returns an error when submitted
-		<Form onSubmit={handleSubmit(onSubmit)}>
+		<Form
+			onSubmit={handleSubmit(onSubmit)}
+			// we can use wether onCloseModal function exist or not to check if the form is in a Modal Window or not. Then change the style accordingly. 
+			type={onCloseModal ? "modal" : "regular"}
+		>
 			{/* through optional chaining ?. to check if this field have an error, if it does if it have a message, if it does pass in the message */}
 			<FormRow label="Cabin name" error={errors?.name?.message}>
 				{/* by spreading the register allows us to use the library to register each of the input box */}
@@ -163,7 +176,13 @@ function CreateCabinForm({ cabinToEdit = {} }) {
 			<FormRow>
 				{/* type is an HTML attribute! */}
 				{/* is reset from HTML we can easier make a button that clears the form */}
-				<Button variation="secondary" type="reset">
+				<Button
+					variation="secondary"
+					type="reset"
+					// we might not have the onCloseModal props when the form is not in a Modal Window.
+					// To prevent the error, we call it in another function with optional chaining to check if the function exist or not.
+					onClick={() => onCloseModal?.()}
+				>
 					Cancel
 				</Button>
 				{/* use conditions to change the name of the button */}
