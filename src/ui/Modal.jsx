@@ -1,4 +1,11 @@
-import { cloneElement, createContext, useContext, useState } from "react";
+import {
+	cloneElement,
+	createContext,
+	useContext,
+	useEffect,
+	useRef,
+	useState,
+} from "react";
 import { createPortal } from "react-dom";
 import { HiXMark } from "react-icons/hi2";
 import styled from "styled-components";
@@ -81,6 +88,32 @@ function Open({ children, opens: opensWindownName }) {
 
 function Window({ children, name }) {
 	const { openName, close } = useContext(ModalContext);
+  // select the window and store is as a DOM element
+	const ref = useRef();
+
+	// create an effect that closes the Modal Window when we click outside of it
+	useEffect(
+		function () {
+			// a function to close the Modal Window
+			function handleClick(e) {
+        // if the window is selected
+        // if the click element is not in the selected window
+        // then close the Modal Window
+				if (ref.current && !ref.current.contains(e.target)) close();
+			}
+
+			// the event listener for the click event
+      // with out the third argument set to true
+      // the eventlistener will listen and perform handleClick in both the bubblling and capturing phase, which causes when we click the button to open the Modal Window nothing will happen.
+      // because when the button is click this event listener will also react to it in the bubbling phase, when the click event pass through from the child Modal pass through the parent. This cause the Modal Window to open then close right after, so we only see nothing happening. 
+      // by setting it to true, the eventlistener will only catch the event in capturing phase and won't be effected by the event coming from the bubbling phase
+			document.addEventListener("click", handleClick, true);
+
+			// return by remove the event listener
+			return () => document.removeEventListener("click", handleClick, true);
+		},
+		[close]
+	);
 
 	if (name !== openName) return null;
 
@@ -89,7 +122,7 @@ function Window({ children, name }) {
 	// 2. a dom Node, which is where we want to render this JSX
 	return createPortal(
 		<Overlay>
-			<StyledModal>
+			<StyledModal ref={ref}>
 				<Button onClick={close}>
 					<HiXMark />
 				</Button>
