@@ -43,7 +43,12 @@ function CreateCabinForm({ cabinToEdit = {}, onCloseModal }) {
 		if (isEditSession)
 			editCabin(
 				{ newCabinData: { ...data, image }, id: editId },
-				{ onSuccess: () => reset() }
+				{
+					onSuccess: () => {
+						reset();
+						onCloseModal?.();
+					},
+				}
 			);
 		// this way we only take the image and nothing else(upload a file have a lot of other imformations)
 		// data.image is a file list so .at() won't work, it is not a real array
@@ -72,7 +77,7 @@ function CreateCabinForm({ cabinToEdit = {}, onCloseModal }) {
 		// in the handleSubmit, the first function(onSubmit) is what we want to be called when the form is submitted, the second function(obError) will be called when the form returns an error when submitted
 		<Form
 			onSubmit={handleSubmit(onSubmit)}
-			// we can use wether onCloseModal function exist or not to check if the form is in a Modal Window or not. Then change the style accordingly. 
+			// we can use wether onCloseModal function exist or not to check if the form is in a Modal Window or not. Then change the style accordingly.
 			type={onCloseModal ? "modal" : "regular"}
 		>
 			{/* through optional chaining ?. to check if this field have an error, if it does if it have a message, if it does pass in the message */}
