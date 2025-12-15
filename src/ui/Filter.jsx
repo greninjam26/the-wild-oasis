@@ -57,6 +57,8 @@ function Filter({ filterField, options }) {
 					onClick={() => handleClick(option.value)}
           // set the button to active if it is the current filter
 					active={option.value === currentFilter}
+          // if it is active we can't click it again
+					disabled={option.value === currentFilter}
 				>
 					{option.label}
 				</FilterButton>
