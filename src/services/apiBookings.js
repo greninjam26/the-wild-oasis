@@ -45,8 +45,11 @@ export async function getBookings({ filter, sortBy, page }) {
 export async function getBooking(id) {
 	const { data, error } = await supabase
 		.from("bookings")
+		// select all the bookings data, with the matching cabins and guests
 		.select("*, cabins(*), guests(*)")
+		// take only the booking that matches this id, this will return an array
 		.eq("id", id)
+		// take the object out of the array
 		.single();
 
 	if (error) {

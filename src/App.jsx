@@ -13,6 +13,7 @@ import NewUsers from "./pages/Users";
 import Settings from "./pages/Settings";
 import GlobalStyles from "./styles/GlobalStyles";
 import AppLayout from "./ui/AppLayout";
+import Booking from "./pages/Booking";
 
 const queryClient = new QueryClient({
 	defaultOptions: {
@@ -35,6 +36,7 @@ function App() {
 						<Route path="dashboard" element={<Dashboard />} />
 						<Route path="account" element={<Account />} />
 						<Route path="bookings" element={<Bookings />} />
+						<Route path="bookings/:bookingId" element={<Booking />} />
 						<Route path="cabins" element={<Cabins />} />
 						<Route path="users" element={<NewUsers />} />
 						<Route path="settings" element={<Settings />} />
