@@ -11,7 +11,7 @@ export function useBooking() {
 		data: booking,
 		error,
 	} = useQuery({
-		queryKey: ["booking"],
+		queryKey: ["booking", bookingId],
 		// the function just call getBooking with the id of the current Booking
 		queryFn: () => getBooking(bookingId),
 		// stop React Query trying to fetch the data three times when the first try failed
