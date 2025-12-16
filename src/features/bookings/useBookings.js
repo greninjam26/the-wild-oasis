@@ -20,15 +20,22 @@ export function useBookings() {
 	const [field, direction] = sortByRaw.split("-");
 	const sortBy = { field, direction };
 
+	// Pagination
+	const page = !searchParams.get("page") ? 1 : Number(searchParams.get("page"));
+
 	const {
 		isLoading,
-		data: bookings,
+    // instead of just passing the data in and destructure after the data is fetched
+    // we can just set it to {}, and it works after
+		data: { data: bookings, count } = {},
+		// data,
 		error,
 	} = useQuery({
 		// this set that the query is depended on and will refetches the data when one of them changes
-		queryKey: ["bookings", filter, sortBy],
-		queryFn: () => getBookings({ filter, sortBy }),
+		queryKey: ["bookings", filter, sortBy, page],
+		queryFn: () => getBookings({ filter, sortBy, page }),
 	});
 
-	return { isLoading, bookings, error };
+	return { isLoading, bookings, error, count };
+	// return { isLoading, error, data };
 }

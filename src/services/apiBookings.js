@@ -1,13 +1,16 @@
+import { PAGE_SIZE } from "../utils/constants";
 import { getToday } from "../utils/helpers";
 import supabase from "./supabase";
 
-export async function getBookings({ filter, sortBy }) {
+export async function getBookings({ filter, sortBy, page }) {
 	// select all the booking data
 	let query = supabase
 		.from("bookings")
 		// this allows us to not only select the information in bookings table but also cabins and guests table
 		.select(
-			"id, created_at, startDate, endDate, numNights, numGuests, status, totalPrice, cabins(name), guests(fullName, email)"
+			"id, created_at, startDate, endDate, numNights, numGuests, status, totalPrice, cabins(name), guests(fullName, email)",
+			// this ignores all the data and just return the total number of data
+			{ count: "exact" }
 		);
 
 	// Filter
@@ -20,14 +23,23 @@ export async function getBookings({ filter, sortBy }) {
 		query = query.order(sortBy.field, { ascending: sortBy.direction == "asc" });
 	}
 
-	const { data, error } = await query;
+	// Pagination
+	if (page) {
+		const from = (page - 1) * PAGE_SIZE;
+		const to = from + PAGE_SIZE - 1;
+
+		query = query.range(from, to);
+	}
+
+	// with count:"exact" we can obtain the count here
+	const { data, error, count } = await query;
 
 	if (error) {
 		console.error(error);
 		throw new Error("Bookings could not be loaded");
 	}
 
-	return data;
+	return { data, count };
 }
 
 export async function getBooking(id) {
