@@ -17,7 +17,7 @@ export function useLogin() {
 			// this way after login we don't need to refetch the user data that is just fetched
 			// this makes the login a bit faster
 			// but this doesn't seem to stop it from refetching...
-			queryClient.setQueryData(["user", user]);
+			queryClient.setQueryData(["user"], user.user);
 			// this will erase where we were earlier
 			// without this replace, the back button in the browser won't work
 			navigate("/dashboard", { replace: true });
