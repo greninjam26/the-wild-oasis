@@ -15,6 +15,9 @@ import { HiArrowDownOnSquare, HiArrowUpOnSquare, HiTrash } from "react-icons/hi2
 import { useNavigate } from "react-router-dom";
 import { useCheckout } from "../check-in-out/useCheckout";
 import { deleteBooking } from "../../services/apiBookings";
+import Modal from "../../ui/Modal";
+import ConfirmDelete from "../../ui/ConfirmDelete";
+import { useDeleteBooking } from "./useDeleteBooking";
 
 const HeadingGroup = styled.div`
 	display: flex;
@@ -25,6 +28,7 @@ const HeadingGroup = styled.div`
 function BookingDetail() {
 	const { booking, isLoading } = useBooking();
 	const { checkout, isCheckingOut } = useCheckout();
+	const { deleteBooking, isDeleting } = useDeleteBooking();
 	const moveBack = useMoveBack();
 	const navigate = useNavigate();
 
@@ -48,7 +52,6 @@ function BookingDetail() {
 			</Row>
 
 			<BookingDataBox booking={booking} />
-
 			<ButtonGroup>
 				{status === "unconfirmed" && (
 					<Button
@@ -69,13 +72,30 @@ function BookingDetail() {
 					</Button>
 				)}
 
-				<Button icon={<HiTrash />} onClick={() => deleteBooking(bookingId)}>
-					Delete
-				</Button>
+				<Modal>
+					<Modal.Open opens="delete">
+						<Button icon={<HiTrash />} variations="danger">
+							Delete booking
+						</Button>
+					</Modal.Open>
 
-				<Button variation="secondary" onClick={moveBack}>
-					Back
-				</Button>
+					<Button variations="secondary" onClick={moveBack}>
+						Back
+					</Button>
+
+					<Modal.Window name="delete">
+						<ConfirmDelete
+							resourceName="bookings"
+							// we can add a second part to the mutation function to process the result
+							onConfirm={() =>
+								deleteBooking(bookingId, {
+									onSettled: () => navigate(-1),
+								})
+							}
+							disabled={isDeleting}
+						/>
+					</Modal.Window>
+				</Modal>
 			</ButtonGroup>
 		</>
 	);
