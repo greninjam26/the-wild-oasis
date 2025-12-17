@@ -11,9 +11,10 @@ import ButtonText from "../../ui/ButtonText";
 import { useMoveBack } from "../../hooks/useMoveBack";
 import { useBooking } from "./useBooking";
 import Spinner from "../../ui/Spinner";
-import { HiArrowDownOnSquare, HiArrowUpOnSquare } from "react-icons/hi2";
+import { HiArrowDownOnSquare, HiArrowUpOnSquare, HiTrash } from "react-icons/hi2";
 import { useNavigate } from "react-router-dom";
 import { useCheckout } from "../check-in-out/useCheckout";
+import { deleteBooking } from "../../services/apiBookings";
 
 const HeadingGroup = styled.div`
 	display: flex;
@@ -67,6 +68,10 @@ function BookingDetail() {
 						Check out
 					</Button>
 				)}
+
+				<Button icon={<HiTrash />} onClick={() => deleteBooking(bookingId)}>
+					Delete
+				</Button>
 
 				<Button variation="secondary" onClick={moveBack}>
 					Back
