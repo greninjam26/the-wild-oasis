@@ -15,6 +15,7 @@ import GlobalStyles from "./styles/GlobalStyles";
 import AppLayout from "./ui/AppLayout";
 import Booking from "./pages/Booking";
 import Checkin from "./pages/Checkin";
+import ProtectedRoute from "./ui/ProtectedRoute";
 
 const queryClient = new QueryClient({
 	defaultOptions: {
@@ -32,7 +33,16 @@ function App() {
 			<GlobalStyles />
 			<BrowserRouter>
 				<Routes>
-					<Route element={<AppLayout />}>
+					<Route
+						element={
+							// by wrapping AppLayout in the ProtectedRoute, we can use ProtectedRoute to control who can access AppLayout
+							// this way we can make sure that those who are not authenticated will not be able to access any of the pages
+							// this works because all the other Routes are located inside AppLayout(its children), by controlling AppLayout we can keep all the other safe
+							<ProtectedRoute>
+								<AppLayout />
+							</ProtectedRoute>
+						}
+					>
 						<Route index element={<Navigate replace to="dashboard" />} />
 						<Route path="dashboard" element={<Dashboard />} />
 						<Route path="account" element={<Account />} />
