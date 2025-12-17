@@ -1,3 +1,4 @@
+import { useForm } from "react-hook-form";
 import Button from "../../ui/Button";
 import Form from "../../ui/Form";
 import FormRow from "../../ui/FormRow";
@@ -6,33 +7,86 @@ import Input from "../../ui/Input";
 // Email regex: /\S+@\S+\.\S+/
 
 function SignupForm() {
-  return (
-    <Form>
-      <FormRow label="Full name" error={""}>
-        <Input type="text" id="fullName" />
-      </FormRow>
+	// use react hook form to help manage this form
+	const { register, formState, getValues, handleSubmit } = useForm();
+	const { errors } = formState;
 
-      <FormRow label="Email address" error={""}>
-        <Input type="email" id="email" />
-      </FormRow>
+	function onSubmit(data) {}
 
-      <FormRow label="Password (min 8 characters)" error={""}>
-        <Input type="password" id="password" />
-      </FormRow>
+	return (
+		// handleSubmit will recive the function that we want to execute when the form is submitted
+		// then when the form is submitted, the function will be executed
+		// the function will also receive all data from the form fields
+		<Form onSubmit={handleSubmit(onSubmit)}>
+			<FormRow
+				label="Full name"
+				// this will check if errors have fullName, if it have a message
+        // if it does, then display the message
+				error={errors?.fullName?.message}
+			>
+				<Input
+					type="text"
+					id="fullName"
+					// set the field name as fullName, and required:"message" sets that this field must to filled and display the message when it is not filled
+					// this allows react hook form to manage this field
+					// register create a few props, then we just spread them to the Input field
+					{...register("fullName", { required: "This field is required" })}
+				/>
+			</FormRow>
 
-      <FormRow label="Repeat password" error={""}>
-        <Input type="password" id="passwordConfirm" />
-      </FormRow>
+			<FormRow label="Email address" error={errors?.email?.message}>
+				<Input
+					type="email"
+					id="email"
+					{...register("email", {
+						required: "This field is required",
+						pattern: {
+							// this regex will check if the email is valid or not(I think just checking the format though)
+							value: /\S+@\S+\.\S+/,
+							message: "Please provide a valid email address",
+						},
+					})}
+				/>
+			</FormRow>
 
-      <FormRow>
-        {/* type is an HTML attribute! */}
-        <Button variation="secondary" type="reset">
-          Cancel
-        </Button>
-        <Button>Create new user</Button>
-      </FormRow>
-    </Form>
-  );
+			<FormRow label="Password (min 8 characters)" error={errors?.password?.message}>
+				<Input
+					type="password"
+					id="password"
+					{...register("password", {
+						required: "This field is required",
+						minLength: {
+							value: 8,
+							message: "Password needs a minimum of 8 characters",
+						},
+					})}
+				/>
+			</FormRow>
+
+			<FormRow label="Repeat password" error={errors?.passwordConfirm?.message}>
+				<Input
+					type="password"
+					id="passwordConfirm"
+					{...register("passwordConfirm", {
+						required: "This field is required",
+						// this is a custom validate function
+						// the value the function recives is the value of this field
+						validate: value =>
+							// with getValues from react hook form we can obtain the value in the password field
+							value === getValues().password || "Passwords need to match",
+					})}
+				/>
+			</FormRow>
+
+			<FormRow>
+				{/* type is an HTML attribute! */}
+				<Button variations="secondary" type="reset">
+					Cancel
+				</Button>
+				<Button>Create new user</Button>
+			</FormRow>
+		</Form>
+	);
 }
 
 export default SignupForm;
