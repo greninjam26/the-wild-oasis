@@ -39,25 +39,28 @@ const FilterButton = styled.button`
 function Filter({ filterField, options }) {
 	// from react router useSearchParams allows us to modify the URL
 	const [searchParams, setSearchParams] = useSearchParams();
-  // get the current searchParams value that matches to filterField, if it is null then get the default first value of option
+	// get the current searchParams value that matches to filterField, if it is null then get the default first value of option
 	const currentFilter = searchParams.get(filterField) || options.at(0).value;
 
 	// this function will update the URL base on the button we click
 	function handleClick(value) {
 		searchParams.set(filterField, value);
+		if (searchParams.get("page")) {
+			searchParams.set("page", 1);
+		}
 		setSearchParams(searchParams);
 	}
 
 	return (
 		<StyledFilter>
-      {/* loop through all the options for the filters and create buttons for them */}
+			{/* loop through all the options for the filters and create buttons for them */}
 			{options.map(option => (
 				<FilterButton
 					key={option.value}
 					onClick={() => handleClick(option.value)}
-          // set the button to active if it is the current filter
+					// set the button to active if it is the current filter
 					active={option.value === currentFilter}
-          // if it is active we can't click it again
+					// if it is active we can't click it again
 					disabled={option.value === currentFilter}
 				>
 					{option.label}
