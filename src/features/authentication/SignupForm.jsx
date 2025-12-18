@@ -98,7 +98,14 @@ function SignupForm() {
 
 			<FormRow>
 				{/* type is an HTML attribute! */}
-				<Button variations="secondary" type="reset" disabled={isLoading}>
+				<Button
+					variations="secondary"
+					type="reset"
+					disabled={isLoading}
+					// the HTML reset won't clear the errors
+					// but this reset from react hook form will clear everything
+					onClick={reset}
+				>
 					Cancel
 				</Button>
 				<Button disabled={isLoading}>Create new user</Button>
