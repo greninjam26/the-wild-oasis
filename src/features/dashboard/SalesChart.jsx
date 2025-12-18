@@ -64,7 +64,10 @@ function SalesChart({ bookings, numDays }) {
 
 	return (
 		<StyledSalesChart>
-			<Heading as="h2">Sales</Heading>
+			<Heading as="h2">
+				Sales from {format(allDates.at(0), "MMM dd yyyy")} &mdash;{" "}
+				{format(allDates.at(-1), "MMM dd yyyy")}
+			</Heading>
 
 			{/* this allows us to set height or width as percentage */}
 			{/* there still is a minimum to the size though, it can infinitly shrink */}
