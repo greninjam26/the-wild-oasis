@@ -10,7 +10,10 @@ function DarkModeProvider({ children }) {
 	const [isDarkMode, setIsDarkMode] =
 		// instead of useState that we always use, we can use this custom hook we created ourselves
 		// this just set the state then synchronizes it with LocalStorage
-		useLocalStorageState(false, "isDarkMode");
+		useLocalStorageState(
+			window.matchMedia("(prefers-color-scheme: dark)").matches,
+			"isDarkMode"
+		);
 
 	useEffect(
 		function () {

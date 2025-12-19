@@ -86,6 +86,8 @@ function Toggle({ id }) {
 	const { openId, open, close, setPosition } = useContext(MenuContext);
 
 	function handleClick(e) {
+    // this stops the event from keep bubbling up the DOM
+    e.stopPropagation()
 		// obtain the position of the closest button to the click
 		const rect = e.target.closest("button").getBoundingClientRect();
 		// convert the position to a location near the button to display the menu
@@ -109,7 +111,7 @@ function Toggle({ id }) {
 
 function List({ id, children }) {
 	const { openId, position, close } = useContext(MenuContext);
-	const ref = useOutsideClick(close);
+	const ref = useOutsideClick(close, false);
 
 	// if the opened window is not this one, then do nothing
 	if (openId !== id) return null;
